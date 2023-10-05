@@ -18,6 +18,9 @@ class uString{
     unsigned u_capacity;
     unsigned u_size;
     char *arr;
+public:
+    using iterator = char*;
+    using const_iterator = const char*;
     
 public:
     
@@ -48,6 +51,11 @@ public:
     void append(const char);
     
     uString concatenate(const uString&, const uString&);
+    
+    iterator begin();
+    iterator end();
+    const_iterator cbegin();
+    const_iterator cend();
     
     operator const char *();
     uString &operator= (const uString&);

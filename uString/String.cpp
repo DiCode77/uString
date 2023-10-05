@@ -263,6 +263,22 @@ uString uString::concatenate(const uString &in1, const uString &in2){
     return (in1 + in2);
 }
 
+uString::iterator uString::begin(){
+    return this->arr;
+}
+
+uString::iterator uString::end(){
+    return &this->arr[u_size];
+}
+
+uString::const_iterator uString::cbegin(){
+    return this->arr;
+}
+
+uString::const_iterator uString::cend(){
+    return &this->arr[u_size];
+}
+
 uString::operator const char *(){
     return ((this->arr != nullptr) ? this->arr : STR_NULL);
 }
