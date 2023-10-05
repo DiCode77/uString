@@ -1,6 +1,5 @@
 //
 //  String.hpp
-//  String_exp2
 //
 //  Created by DiCode77.
 //

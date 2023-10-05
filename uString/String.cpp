@@ -1,6 +1,5 @@
 //
 //  String.cpp
-//  String_exp2
 //
 //  Created by DiCode77.
 //
