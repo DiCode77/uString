@@ -24,7 +24,7 @@ unsigned uString::getStrLen(const char *str) const{
 void uString::resizeCapacity(unsigned size){
     if (this->u_capacity < size){
         while (this->u_capacity < size){
-            this->u_capacity += STR_CAPACITY;
+            this->u_capacity *= 2;
         }
     }
 }
