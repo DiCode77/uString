@@ -29,13 +29,13 @@ public:
     uString(const char*);
     uString(const uString&);
     
-    const char *c_str();
-    uString s_str();
-    std::string std_str();
+    const char *c_str() const;
+    uString s_str() const;
+    std::string std_str() const;
     
     
-    const unsigned size();
-    const unsigned capacity();
+    const unsigned size() const;
+    const unsigned capacity() const;
     const bool isEmpty();
     const bool isNull();
     
@@ -61,6 +61,7 @@ public:
     uString &operator= (const uString&);
     uString &operator= (const char);
     uString &operator+= (const uString&);
+    uString &operator+= (const char);
     uString operator+ (const char);
     
     const bool operator== (const char*) const;

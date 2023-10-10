@@ -183,23 +183,23 @@ uString::uString(const uString &str) : uString(){
     copyStrToArr(str.arr, this->arr, str.u_size +1);
 }
 
-const char *uString::c_str(){
+const char *uString::c_str() const{
     return ((this->arr != nullptr) ? this->arr : STR_NULL);
 }
 
-uString uString::s_str(){
+uString uString::s_str() const{
     return ((this->arr != nullptr) ? *this : STR_NULL);
 }
 
-std::string uString::std_str(){
+std::string uString::std_str() const{
     return std::string((this->arr != nullptr) ? this->arr : STR_NULL);
 }
 
-const unsigned uString::size(){
+const unsigned uString::size() const{
     return this->u_size;
 }
 
-const unsigned uString::capacity(){
+const unsigned uString::capacity() const{
     return this->u_capacity;
 }
 
@@ -303,6 +303,14 @@ uString &uString::operator= (const char ext){
 
 uString &uString::operator+= (const uString &ext){
     addStrToArrExp(ext.arr, ext.u_size);
+    return *this;
+}
+
+uString &uString::operator+= (const char ext){
+    const int symbol = 1;
+    char ch_[2]{ext, '\0'};
+    
+    addStrToArrExp(ch_, symbol);
     return *this;
 }
 
