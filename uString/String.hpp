@@ -18,6 +18,8 @@
 
 using ulong_t = unsigned long;
 
+#define ULONG_T_MAX ULONG_MAX
+
 class uString{
     ulong_t u_capacity;
     ulong_t u_size;
@@ -86,15 +88,14 @@ private:
     void init();
     ulong_t getStrLen(const char*) const; // визначає розмір рядка
     void resizeCapacity(ulong_t); // перевизначає довжину капасіті
-    void createNewArr(ulong_t); // створює новий масив
-    void resizeNewArr(ulong_t); // перевизначає довжину масиву
+    char *createNewArr(ulong_t); // створює новий масив
+    char *resizeNewArr(char**, ulong_t); // перевизначає довжину масиву
     void copyStrToArr(const char*, char*, const ulong_t); // записує інформацію в масив із 0 елементу
     void copyRevertStrToArr(const char*, char*, const ulong_t); // переставляємо символи зворотньо, працює тільки з ASCII.
     void copyStrToArrIndex(ulong_t, const char*, char*, ulong_t);
     void toClear(ulong_t); // очищає масив
     ulong_t sumANCI(const char*, ulong_t) const; // рахує суму всіх символів
     bool compareSymbols(const char*, ulong_t, const char*, ulong_t) const; // рахує суму всіх символів
-    void addStrToArr(const char*, ulong_t); // добавляємо новий рядок до існуючого рядка (застарілий, повільний)
     void addStrToArrExp(const char*, ulong_t, const short) noexcept; // добавляємо новий рядок до існуючого рядка
     void overwrite(const char*, const ulong_t, const ulong_t); // перезаписуємо рядок
 };
