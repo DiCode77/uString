@@ -13,10 +13,14 @@
 #define STR_CAPACITY 35
 #define VERSION_STRING "0.0.8"
 #define STR_NULL "\0"
+#define ONE 1
+#define ZERO 0
+
+using ulong_t = unsigned long;
 
 class uString{
-    unsigned u_capacity;
-    unsigned u_size;
+    ulong_t u_capacity;
+    ulong_t u_size;
     char *arr;
 public:
     using iterator = char*;
@@ -34,14 +38,14 @@ public:
     std::string std_str() const;
     
     
-    const unsigned size() const;
-    const unsigned capacity() const;
+    const ulong_t size() const;
+    const ulong_t capacity() const;
     const bool isEmpty();
     const bool isNull();
     
     void print();
     void printn();
-    void reserve(const unsigned);
+    void reserve(const ulong_t);
     
     bool strcmp(const uString&, const uString&);
     
@@ -49,6 +53,12 @@ public:
     void set(const uString&);
     void append(const uString&);
     void append(const char);
+    void append(const ulong_t, const uString&);
+    void append(const ulong_t, const char);
+    void append(const uString&, const ulong_t);
+    void append(const uString&, const ulong_t, const ulong_t);
+    
+    void revert();
     
     uString concatenate(const uString&, const uString&);
     
@@ -67,25 +77,26 @@ public:
     const bool operator== (const char*) const;
     const bool operator== (const uString&) const;
     const bool operator!= (const uString&) const;
-    char &operator[] (const unsigned) const;
+    char &operator[] (const ulong_t) const;
     
     friend std::ostream &operator<< (std::ostream&, const uString&);
     friend uString operator+ (const uString&, const uString&);
     
 private:
     void init();
-    unsigned getStrLen(const char*) const; // визначає розмір рядка
-    void resizeCapacity(unsigned); // перевизначає довжину капасіті
-    void createNewArr(unsigned); // створює новий масив
-    void resizeNewArr(unsigned); // перевизначає довжину масиву
-    void copyStrToArr(const char*, char*, const unsigned); // записує інформацію в масив із 0 елементу
-    void copyStrToArrIndex(unsigned, const char*, char*, unsigned);
-    void toClear(unsigned); // очищає масив
-    unsigned sumANCI(const char*, unsigned) const; // рахує суму всіх символів
-    bool compareSymbols(const char*, unsigned, const char*, unsigned) const; // рахує суму всіх символів
-    void addStrToArr(const char*, unsigned); // добавляємо новий рядок до існуючого рядка
-    void addStrToArrExp(const char*, unsigned) noexcept; // добавляємо новий рядок до існуючого рядка
-    void overwrite(const char*, const unsigned, const unsigned); // перезаписуємо рядок
+    ulong_t getStrLen(const char*) const; // визначає розмір рядка
+    void resizeCapacity(ulong_t); // перевизначає довжину капасіті
+    void createNewArr(ulong_t); // створює новий масив
+    void resizeNewArr(ulong_t); // перевизначає довжину масиву
+    void copyStrToArr(const char*, char*, const ulong_t); // записує інформацію в масив із 0 елементу
+    void copyRevertStrToArr(const char*, char*, const ulong_t); // переставляємо символи зворотньо, працює тільки з ASCII.
+    void copyStrToArrIndex(ulong_t, const char*, char*, ulong_t);
+    void toClear(ulong_t); // очищає масив
+    ulong_t sumANCI(const char*, ulong_t) const; // рахує суму всіх символів
+    bool compareSymbols(const char*, ulong_t, const char*, ulong_t) const; // рахує суму всіх символів
+    void addStrToArr(const char*, ulong_t); // добавляємо новий рядок до існуючого рядка (застарілий, повільний)
+    void addStrToArrExp(const char*, ulong_t, const short) noexcept; // добавляємо новий рядок до існуючого рядка
+    void overwrite(const char*, const ulong_t, const ulong_t); // перезаписуємо рядок
 };
 
 #endif /* String_hpp */
