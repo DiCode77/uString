@@ -76,8 +76,19 @@ void uString::copyStrToArrIndex(ulong_t index, c_char_p_t str, char_p_t arr, ulo
     }
 }
 
-void uString::toClear(ulong_t range){
-    for (ulong_t i = 0; i < range; i++){
+void uString::copyStrToArrIterator(iterator begin, iterator end, char_p_t arr, c_ulong_t pos){
+    if (!(begin && end && arr)){
+        return;
+    }
+    
+    ulong_t val = 0;
+    for (iterator i = begin; i < end; i++){
+        arr[pos + val++] = *i;
+    }
+}
+
+void uString::toClear(ulong_t beg, ulong_t range){
+    for (ulong_t i = beg; i < range; i++){
         this->arr[i] = '\0';
     }
 }
@@ -159,7 +170,7 @@ void uString::overwrite(c_char_p_t ext_arr, c_ulong_t ext_size, c_ulong_t ext_ca
         this->arr = resizeNewArr(&this->arr, this->u_capacity +1);
     }
     else if (ext_capacity <= this->u_capacity){
-        toClear(this->u_size +1);
+        toClear(null, this->u_size +1);
     }
     
     this->u_size = ext_size;
@@ -251,13 +262,39 @@ void uString::reserve(const ulong_t size){
     }
 }
 
+bool uString::strcmp(const uString &in){
+    return compareSymbols(this->arr, this->u_size, in.arr, in.u_size);
+}
+
 bool uString::strcmp(const uString &in1, const uString &in2){
     return compareSymbols(in1.arr, in1.u_size, in2.arr, in2.u_size);
 }
 
 void uString::clear(){
-    toClear(this->u_size);
+    toClear(null, this->u_size);
     this->u_size = 0;
+}
+
+void uString::clear(ulong_t begin){
+    toClear(begin, this->u_size);
+    this->u_size = begin;
+}
+
+void uString::clear(ulong_t left, ulong_t right){
+    if (left < this->u_size && right){
+        char_p_t arr_ = createNewArr(this->u_capacity +1);
+        ulong_t size = 0;
+        
+        copyStrToArrIterator(begin(), (this->arr + left), arr_);
+        copyStrToArrIterator(this->arr + (right + left), end(), arr_, left);
+        deleteAndTransfer(&this->arr, &arr_);
+        
+        ((this->u_size > left) ? size += left : 0);
+        (((left + right) < this->u_size) ? size += this->u_size - (left + right) : 0);
+        
+        this->u_size = size;
+    }
+    
 }
 
 void uString::set(const uString &ext){
@@ -327,7 +364,7 @@ uString::iterator uString::begin(){
 }
 
 uString::iterator uString::end(){
-    return &this->arr[u_size];
+    return &this->arr[this->u_size];
 }
 
 uString::const_iterator uString::cbegin(){

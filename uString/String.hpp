@@ -30,7 +30,7 @@ class uString{
     ulong_t u_size;
     char_p_t arr;
 public:
-    using iterator = char_p_t;
+    using iterator       = char_p_t;
     using const_iterator = c_char_p_t;
     
 public:
@@ -54,9 +54,13 @@ public:
     void printn();
     void reserve(c_ulong_t);
     
+    bool strcmp(const uString&);
     bool strcmp(const uString&, const uString&);
     
     void clear();
+    void clear(ulong_t);
+    void clear(ulong_t, ulong_t);
+    
     void set(const uString&);
     void append(const uString&);
     void append(c_char_t);
@@ -101,7 +105,8 @@ private:
     void copyStrToArr(c_char_p_t, char_p_t, c_ulong_t); // записує інформацію в масив із 0 елементу
     void copyRevertStrToArr(c_char_p_t, char_p_t, c_ulong_t); // переставляємо символи зворотньо, працює тільки з ASCII.
     void copyStrToArrIndex(ulong_t, c_char_p_t, char_p_t, ulong_t);
-    void toClear(ulong_t); // очищає масив
+    void copyStrToArrIterator(iterator, iterator, char_p_t, c_ulong_t pos = 0);
+    void toClear(ulong_t, ulong_t); // очищає масив
     ulong_t sumANCI(c_char_p_t, ulong_t) const; // рахує суму всіх символів
     bool compareSymbols(c_char_p_t, ulong_t, c_char_p_t, ulong_t) const; // рахує суму всіх символів
     void addStrToArrExp(c_char_p_t, ulong_t, const short) noexcept; // добавляємо новий рядок до існуючого рядка
