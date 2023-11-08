@@ -7,8 +7,14 @@
 #ifndef String_hpp
 #define String_hpp
 
+#ifdef __APPLE__
 #include <ostream>
 #include <unistd.h>
+
+#elif defined(ARDUINO)
+#include <Arduino.h>
+
+#endif
 
 #define STR_CAPACITY 35
 #define VERSION_STRING "0.0.9"
@@ -39,11 +45,13 @@ public:
     uString();
     uString(c_char_p_t);
     uString(const uString&);
-    
+
     c_char_p_t c_str() const;
     uString s_str() const;
+#ifdef __APPLE__
     std::string std_str() const;
-    
+#endif
+
     
     c_ulong_t size() const;
     c_ulong_t capacity() const;
@@ -74,6 +82,9 @@ public:
     
     void revert();
     
+    ulong_t find(const uString&);
+    ulong_t rfind(const uString&);
+    
     uString concatenate(const uString&, const uString&);
     
     iterator begin();
@@ -93,7 +104,9 @@ public:
     const bool operator!= (const uString&) const;
     char &operator[] (c_ulong_t) const;
     
+#ifdef __APPLE__
     friend std::ostream &operator<< (std::ostream&, const uString&);
+#endif
     friend uString operator+ (const uString&, const uString&);
     
 private:
@@ -113,6 +126,8 @@ private:
     void addStrToArrInsert(c_char_p_t, ulong_t);
     void overwrite(c_char_p_t, c_ulong_t, c_ulong_t); // перезаписуємо рядок
     void deleteAndTransfer(char_pp_t, char_pp_t);
+    ulong_t find_(const uString&);
+    ulong_t rfind_(const uString&);
 };
 
 #endif /* String_hpp */
