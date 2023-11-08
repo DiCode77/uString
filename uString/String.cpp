@@ -220,9 +220,11 @@ uString uString::s_str() const{
     return ((this->arr != nullptr) ? *this : STR_NULL);
 }
 
+#ifdef __APPLE__
 std::string uString::std_str() const{
     return std::string((this->arr != nullptr) ? this->arr : STR_NULL);
 }
+#endif
 
 c_ulong_t uString::size() const{
     return this->u_size;
@@ -242,13 +244,21 @@ const bool uString::isNull(){
 
 void uString::print(){
     if (this->u_size)
-    write(true, this->arr, this->u_size);
+#ifdef __APPLE__
+        write(true, this->arr, this->u_size);
+#elif defined(ARDUINO)
+    Serial.print(this->arr);
+#endif
 }
 
 void uString::printn(){
     if (this->u_size){
+#ifdef __APPLE__
         write(true, this->arr, this->u_size);
         write(true, "\n", 1);
+#elif defined(ARDUINO)
+        Serial.println(this->arr);
+#endif
     }
 }
 
@@ -355,6 +365,14 @@ void uString::revert(){
     }
 }
 
+ulong_t uString::find(const uString &str){
+    return find_(str);
+}
+
+ulong_t uString::rfind(const uString &other){
+    return rfind_(other);
+}
+
 uString uString::concatenate(const uString &in1, const uString &in2){
     return (in1 + in2);
 }
@@ -426,9 +444,11 @@ char &uString::operator[] (c_ulong_t index) const{
     return this->arr[index];
 }
 
+#ifdef __APPLE__
 std::ostream &operator<< (std::ostream &ost, const uString &ext){
     return ((ext.arr == nullptr) ? ost << STR_NULL : ost << ext.arr);
 }
+#endif
 
 uString operator+ (const uString &in1, const uString &in2){
     uString str = in1;
@@ -442,4 +462,44 @@ void uString::deleteAndTransfer(char_pp_t arr, char_pp_t arr_){
         *arr = nullptr;
         *arr = *arr_;
     }
+}
+
+ulong_t uString::find_(const uString &str){
+    for (ulong_t i = 0; ((i < this->u_size) && str.u_size != 0); i++){
+        if (this->arr[i] == str.arr[0]){
+            if (this->arr[i + (str.u_size -1)] == str.arr[str.u_size -1]){
+                for (ulong_t l = 0; l < str.u_size; l++){
+                    if (this->arr[i + l] == str.arr[l]){
+                        if (l == (str.u_size -1)){
+                            return i;
+                        }
+                    }
+                    else{
+                        break;
+                    }
+                }
+            }
+        }
+    }
+    return -1;
+}
+
+ulong_t uString::rfind_(const uString &str){
+    for (ulong_t i = (this->u_size -1); (i != ULONG_T_MAX && str.u_size != 0); i--){
+        if (this->arr[i] == str.arr[str.u_size -1]){
+            if (this->arr[i - (str.u_size -1)] == str.arr[0]){
+                for (ulong_t l = 0; l < str.u_size; l++){
+                    if (this->arr[(i - (str.u_size -1)) + l] == str.arr[l]){
+                        if (l == (str.u_size -1)){
+                            return (i - (str.u_size -1));
+                        }
+                    }
+                    else{
+                        break;
+                    }
+                }
+            }
+        }
+    }
+    return -1;
 }
