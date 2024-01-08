@@ -105,6 +105,7 @@ public:
     double toDouble();
     char at(ulong_t at);
     void trim();
+    void trimIs(char_p_t, int);
     
     void replace(c_ulong_t, c_ulong_t, uString);
     ulong_t find(const uString&);
