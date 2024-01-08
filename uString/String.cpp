@@ -464,12 +464,42 @@ void uString::trim(){
     if (this->arr && this->u_size){
         char_p_t arr_ = createNewArr(this->u_capacity +1);
         
+        ulong_t number = this->u_size;
         for (ulong_t i = 0, j = 0; i < this->u_size; i++){
             if (this->arr[i] != ' ' && this->arr[i] != '\n' && this->arr[i] != '\t'){
                 arr_[j++] = this->arr[i];
             }
+            else{
+                number--;
+            }
         }
-        this->u_size = getStrLen(arr_);
+        this->u_size = number;
+        arr_[this->u_size] = '\0';
+        deleteAndTransfer(&this->arr, &arr_);
+    }
+}
+
+void uString::trimIs(char_p_t arr, int size){
+    if (this->arr && this->u_size){
+        char_p_t arr_ = createNewArr(this->u_capacity +1);
+        
+        ulong_t number = this->u_size;
+        bool aud = false;
+        for (ulong_t i = 0, j = 0; i < this->u_size; i++){
+            aud = false;
+            for (ulong_t l = 0; l < size; l++){
+                if (arr[l] == this->arr[i]){
+                    aud = true;
+                }
+            }
+            if (!aud){
+                arr_[j++] = this->arr[i];
+            }
+            else{
+                number--;
+            }
+        }
+        this->u_size = number;
         arr_[this->u_size] = '\0';
         deleteAndTransfer(&this->arr, &arr_);
     }
