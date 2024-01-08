@@ -13,23 +13,32 @@
 
 #elif defined(ARDUINO)
 #include <Arduino.h>
+#include <limits.h>
 
 #endif
 
 #define STR_CAPACITY 35
-#define VERSION_STRING "0.0.9"
+#define VERSION_STRING "0.1.0"
 #define STR_NULL "\0"
 #define one 1
 #define null 0
 
+#ifdef __APPLE__
 using ulong_t    = unsigned long;
 using c_ulong_t  = const unsigned long;
+#define ULONG_T_MAX ULONG_MAX
+
+#elif defined(ARDUINO)
+using ulong_t    = unsigned int;
+using c_ulong_t  = const unsigned int;
+#define ULONG_T_MAX UINT_MAX
+
+#endif
+
 using c_char_p_t = const char*;
 using char_p_t   = char*;
 using char_pp_t  = char**;
 using c_char_t   = const char;
-
-#define ULONG_T_MAX ULONG_MAX
 
 class uString{
     ulong_t u_capacity;
@@ -81,7 +90,23 @@ public:
     void insert(c_ulong_t, const uString&);
     
     void revert();
+    void ascii(c_char_t);
     
+    uString toString(const int num);
+    uString toString(const unsigned num);
+    uString toString(const long num);
+    uString toString(const long long num);
+    uString toString(const unsigned long num);
+    uString toString(const unsigned long long num);
+    uString toString(const double num);
+    uString toString(const char num);
+    
+    ulong_t toInt();
+    double toDouble();
+    char at(ulong_t at);
+    void trim();
+    
+    void replace(c_ulong_t, c_ulong_t, uString);
     ulong_t find(const uString&);
     ulong_t rfind(const uString&);
     
@@ -117,7 +142,8 @@ private:
     char_p_t resizeNewArr(char_pp_t, ulong_t); // перевизначає довжину масиву
     void copyStrToArr(c_char_p_t, char_p_t, c_ulong_t); // записує інформацію в масив із 0 елементу
     void copyRevertStrToArr(c_char_p_t, char_p_t, c_ulong_t); // переставляємо символи зворотньо, працює тільки з ASCII.
-    void copyStrToArrIndex(ulong_t, c_char_p_t, char_p_t, ulong_t);
+    void copyStrToArrIndex(ulong_t, c_char_p_t, char_p_t, c_ulong_t); // копіюємо рядок із заданими координатами першого масиву
+    void copyStrIndexToArrIndex(ulong_t, c_char_p_t, char_p_t, c_ulong_t, c_ulong_t); // копіюємо рядок із заданими координатами першого масиву та другого
     void copyStrToArrIterator(iterator, iterator, char_p_t, c_ulong_t pos = 0);
     void toClear(ulong_t, ulong_t); // очищає масив
     ulong_t sumANCI(c_char_p_t, ulong_t) const; // рахує суму всіх символів
@@ -126,8 +152,10 @@ private:
     void addStrToArrInsert(c_char_p_t, ulong_t);
     void overwrite(c_char_p_t, c_ulong_t, c_ulong_t); // перезаписуємо рядок
     void deleteAndTransfer(char_pp_t, char_pp_t);
-    ulong_t find_(const uString&);
-    ulong_t rfind_(const uString&);
+    ulong_t find_(const uString&); // робимо пошук рядка з нульового символу
+    ulong_t rfind_(const uString&); // робимо пошук рядка з останнього символу
+    bool convertNumToStr(char*, const int, const char*, const void*); // конвертуємо числа в рядок
+    void replace_(c_ulong_t, c_ulong_t, c_char_p_t, c_ulong_t);
 };
 
 #endif /* String_hpp */

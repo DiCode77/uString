@@ -76,6 +76,16 @@ void uString::copyStrToArrIndex(ulong_t index, c_char_p_t str, char_p_t arr, ulo
     }
 }
 
+void uString::copyStrIndexToArrIndex(ulong_t index, c_char_p_t str, char_p_t arr, c_ulong_t arr_index, c_ulong_t size){
+    if (!(str && arr && size)){
+        return;
+    }
+    
+    for (ulong_t i = index; i < size; i++){
+        arr[i] = str[(i - index) + arr_index];
+    }
+}
+
 void uString::copyStrToArrIterator(iterator begin, iterator end, char_p_t arr, c_ulong_t pos){
     if (!(begin && end && arr)){
         return;
@@ -119,7 +129,7 @@ void uString::addStrToArrExp(c_char_p_t str, ulong_t size, const short cout) noe
     if ((this->u_size + size) > this->u_capacity){
         resizeCapacity(this->u_size + size);
         
-        char *arr_ = new char[this->u_capacity +1]{};
+        char_p_t arr_ = createNewArr(this->u_capacity +1);
 
         copyStrToArr(this->arr, arr_, this->u_size +1);
         copyStrToArrIndex(this->u_size, str, arr_, (this->u_size + size) +cout);
@@ -262,10 +272,10 @@ void uString::printn(){
     }
 }
 
-void uString::reserve(const ulong_t size){
+void uString::reserve(c_ulong_t size){
     if (STR_CAPACITY < size){
         resizeCapacity(size);
-        char *arr_ = new char [this->u_capacity +1]{};
+        char_p_t arr_ = createNewArr(this->u_capacity +1);
         copyStrToArr(this->arr, arr_, this->u_size +1);
         this->arr = resizeNewArr(&this->arr, this->u_capacity +1);
         deleteAndTransfer(&this->arr, &arr_);
@@ -359,10 +369,114 @@ void uString::insert(c_ulong_t pos, const uString &str){
 
 void uString::revert(){
     if (this->u_size){
-        char *arr_ = new char[this->u_capacity +1]{};
+        char_p_t arr_ = createNewArr(this->u_capacity +1);
         copyRevertStrToArr(this->arr, arr_, this->u_size -1);
         deleteAndTransfer(&this->arr, &arr_);
     }
+}
+
+void uString::ascii(c_char_t ascii){
+    char ch[2] = {ascii, '\0'};
+    overwrite(ch, 1, this->u_capacity);
+}
+
+uString uString::toString(const int num){
+    char buffer[sizeof(int) *3]{};
+    if (convertNumToStr(buffer, sizeof(buffer), "%d", &num)){
+        return buffer;
+    }
+    return STR_NULL;
+}
+
+uString uString::toString(const unsigned num){
+    char buffer[sizeof(unsigned) *3]{};
+    if (convertNumToStr(buffer, sizeof(buffer), "%u", &num)){
+        return buffer;
+    }
+    return STR_NULL;
+}
+
+uString uString::toString(const long num){
+    char buffer[sizeof(long) *3]{};
+    if (convertNumToStr(buffer, sizeof(buffer), "%ld", &num)){
+        return buffer;
+    }
+    return STR_NULL;
+}
+
+uString uString::toString(const long long num){
+    char buffer[sizeof(long long) *3]{};
+    if (convertNumToStr(buffer, sizeof(buffer), "%lld", &num)){
+        return buffer;
+    }
+    return STR_NULL;
+}
+
+uString uString::toString(const unsigned long num){
+    char buffer[sizeof(unsigned long) *3]{};
+    if (convertNumToStr(buffer, sizeof(buffer), "%lu", &num)){
+        return buffer;
+    }
+    return STR_NULL;
+}
+
+uString uString::toString(const unsigned long long num){
+    char buffer[sizeof(unsigned long long) *3]{};
+    if (convertNumToStr(buffer, sizeof(buffer), "%llu", &num)){
+        return buffer;
+    }
+    return STR_NULL;
+}
+
+uString uString::toString(const double num){
+    char buffer[sizeof(double) *3]{};
+    if (convertNumToStr(buffer, sizeof(buffer), "%.2f", &num)){
+        return buffer;
+    }
+    return STR_NULL;
+}
+
+uString uString::toString(const char num){
+    char buffer[sizeof(char) *3]{};
+    if (convertNumToStr(buffer, sizeof(buffer), "%c", &num)){
+        return buffer;
+    }
+    return STR_NULL;
+}
+
+ulong_t uString::toInt(){
+    if (this->arr)
+        return atol(this->arr);
+    return 0;
+}
+
+double uString::toDouble(){
+    if (this->arr)
+        return atof(this->arr);
+    return 0;
+}
+
+char uString::at(ulong_t at){
+    return ((at < this->u_size) ? this->arr[at] : '\0');
+}
+
+void uString::trim(){
+    if (this->arr && this->u_size){
+        char_p_t arr_ = createNewArr(this->u_capacity +1);
+        
+        for (ulong_t i = 0, j = 0; i < this->u_size; i++){
+            if (this->arr[i] != ' ' && this->arr[i] != '\n' && this->arr[i] != '\t'){
+                arr_[j++] = this->arr[i];
+            }
+        }
+        this->u_size = getStrLen(arr_);
+        arr_[this->u_size] = '\0';
+        deleteAndTransfer(&this->arr, &arr_);
+    }
+}
+
+void uString::replace(c_ulong_t index, c_ulong_t len, uString str){
+    replace_(index, len, str.arr, str.u_size);
 }
 
 ulong_t uString::find(const uString &str){
@@ -502,4 +616,52 @@ ulong_t uString::rfind_(const uString &str){
         }
     }
     return -1;
+}
+
+bool uString::convertNumToStr(char *buffer, const int sizeBuffer, const char *par, const void *number){
+    if (compareSymbols(par, getStrLen(par), "%d", getStrLen("%d"))){
+        return snprintf(buffer, sizeBuffer, par, (*(int*)number));
+    }
+    else if (compareSymbols(par, getStrLen(par), "%ld", getStrLen("%ld"))){
+        return snprintf(buffer, sizeBuffer, par, (*(long*)number));
+    }
+    else if (compareSymbols(par, getStrLen(par), "%lld", getStrLen("%lld"))){
+        return snprintf(buffer, sizeBuffer, par, (*(long long*)number));
+    }
+    else if (compareSymbols(par, getStrLen(par), "%hd", getStrLen("%hd"))){
+        return snprintf(buffer, sizeBuffer, par, (*(short*)number));
+    }
+    else if (compareSymbols(par, getStrLen(par), "%u", getStrLen("%u"))){
+        return snprintf(buffer, sizeBuffer, par, (*(unsigned*)number));
+    }
+    else if (compareSymbols(par, getStrLen(par), "%lu", getStrLen("%lu"))){
+        return snprintf(buffer, sizeBuffer, par, (*(unsigned long*)number));
+    }
+    else if (compareSymbols(par, getStrLen(par), "%llu", getStrLen("%llu"))){
+        return snprintf(buffer, sizeBuffer, par, (*(unsigned long long*)number));
+    }
+    else if (compareSymbols(par, getStrLen(par), "%.2f", getStrLen("%.2f"))){
+        return snprintf(buffer, sizeBuffer, par, (*(double*)number));
+    }
+    else if (compareSymbols(par, getStrLen(par), "%c", getStrLen("%c"))){
+        return snprintf(buffer, sizeBuffer, par, (*(char*)number));
+    }
+    
+    return null;
+}
+
+void uString::replace_(c_ulong_t index, c_ulong_t len, c_char_p_t str, c_ulong_t size){
+    if (this->arr && this->u_size && index < this->u_size && index != ULONG_T_MAX){
+        if ((index + size) > this->u_size)
+            resizeCapacity(index + size);
+        
+        char_p_t arr_ = createNewArr(this->u_capacity +1);
+        copyStrToArr(this->arr, arr_, index);
+        copyStrToArrIndex(index, str, arr_, index + size);
+        copyStrIndexToArrIndex(index + size, this->arr, arr_, index + len, 
+                               (index + size) + (((this->u_size - index) >= len) ? (this->u_size - index) - len : 0) +1);
+        
+        this->u_size = (this->u_size - ((this->u_size <= len) ? this->u_size : len)) + size;
+        deleteAndTransfer(&this->arr, &arr_);
+    }
 }
