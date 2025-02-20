@@ -15,9 +15,7 @@ void uString::init(){
 }
 
 ulong_t uString::getStrLen(c_char_p_t str) const{
-    ulong_t size = 0;
-    while (str[size] != '\0') size++;
-    return size;
+    return (char_p_t)std::memchr(str, '\0', ULONG_T_MAX) - str;
 }
 
 void uString::resizeCapacity(ulong_t size){
@@ -29,7 +27,7 @@ void uString::resizeCapacity(ulong_t size){
 }
 
 char *uString::createNewArr(ulong_t size){
-    return new char [size]{};
+    return new char [size];
 }
 
 char *uString::resizeNewArr(char_pp_t arr_, ulong_t size){
@@ -151,25 +149,19 @@ void uString::addStrToArrExp(c_char_p_t str, ulong_t size, const short cout) noe
 }
 
 void uString::addStrToArrInsert(c_char_p_t str, ulong_t pos){
-    if (str){
+    if (str && pos <= this->u_size){
         ulong_t str_len = getStrLen(str);
         resizeCapacity(str_len + this->u_size);
         
         char_p_t arr_ = createNewArr(this->u_capacity +1);
         ((pos > this->u_size) ? (pos = str_len) : 0);
-        ulong_t j(0), drop(0);
-        for (ulong_t i = 0; i <= this->u_size +1; i++){
-            if (i != pos){
-                arr_[i + ((j != 0) ? j -1 : j)] = this->arr[i - drop];
-            }
-            else{
-                for (; j < str_len; j++){
-                    arr_[i + j] = str[j];
-                }
-                drop = one;
-            }
-        }
+        
+        std::memcpy(arr_, this->arr, pos);
+        std::memcpy(arr_ + pos, str, str_len);
+        std::memcpy(arr_ + pos + str_len, this->arr + pos, this->u_size - pos);
+        
         this->u_size += str_len;
+        
         deleteAndTransfer(&this->arr, &arr_);
     }
 }
@@ -230,7 +222,7 @@ uString uString::s_str() const{
     return ((this->arr != nullptr) ? *this : STR_NULL);
 }
 
-#ifdef __APPLE__
+#if defined(__APPLE__) || defined(_WIN32)
 std::string uString::std_str() const{
     return std::string((this->arr != nullptr) ? this->arr : STR_NULL);
 }
@@ -254,8 +246,8 @@ const bool uString::isNull(){
 
 void uString::print(){
     if (this->u_size)
-#ifdef __APPLE__
-        write(true, this->arr, this->u_size);
+#if defined(__APPLE__) || defined(_WIN32)
+        printf("%s", this->arr);
 #elif defined(ARDUINO)
     Serial.print(this->arr);
 #endif
@@ -263,9 +255,8 @@ void uString::print(){
 
 void uString::printn(){
     if (this->u_size){
-#ifdef __APPLE__
-        write(true, this->arr, this->u_size);
-        write(true, "\n", 1);
+#if defined(__APPLE__) || defined(_WIN32)
+        printf("%s\n", this->arr);
 #elif defined(ARDUINO)
         Serial.println(this->arr);
 #endif
@@ -325,6 +316,10 @@ void uString::append(const uString &ext){
     addStrToArrExp(ext.arr, ext.u_size, one);
 }
 
+void uString::append(c_char_i_t arr){
+    addStrToArrExp(arr, getStrLen(arr), one);
+}
+
 void uString::append(c_char_t ext){
     const int symbol = 1;
     char ch_[2]{ext, '\0'};
@@ -365,6 +360,10 @@ void uString::insert(const uString &str){
 
 void uString::insert(c_ulong_t pos, const uString &str){
     addStrToArrInsert(str.arr, pos);
+}
+
+void uString::insert(c_ulong_t pos, c_char_i_t str){
+    addStrToArrInsert(str, pos);
 }
 
 void uString::revert(){
@@ -546,6 +545,13 @@ uString &uString::operator= (const uString &ext){
     return *this;
 }
 
+uString &uString::operator= (c_char_i_t str){
+    c_ulong_t size = getStrLen(str);
+    overwrite(str, size, size);
+    
+    return *this;
+}
+
 uString &uString::operator= (c_char_t ext){
     char arr_[2] = {ext, '\0'};
     overwrite(arr_, one, this->u_capacity);
@@ -554,6 +560,11 @@ uString &uString::operator= (c_char_t ext){
 
 uString &uString::operator+= (const uString &ext){
     addStrToArrExp(ext.arr, ext.u_size, one);
+    return *this;
+}
+
+uString &uString::operator+= (c_char_i_t arr){
+    addStrToArrExp(arr, getStrLen(arr), one);
     return *this;
 }
 
@@ -588,7 +599,7 @@ char &uString::operator[] (c_ulong_t index) const{
     return this->arr[index];
 }
 
-#ifdef __APPLE__
+#if defined(__APPLE__) || defined(_WIN32)
 std::ostream &operator<< (std::ostream &ost, const uString &ext){
     return ((ext.arr == nullptr) ? ost << STR_NULL : ost << ext.arr);
 }
@@ -598,6 +609,16 @@ uString operator+ (const uString &in1, const uString &in2){
     uString str = in1;
     str.append(in2);
     return str;
+}
+
+ uString operator+ (uString &in, c_char_i_t str){
+    in.append(str);
+    return in;
+}
+
+uString operator+ (c_char_i_t str, uString &in){
+    in.insert(str);
+    return in;
 }
 
 void uString::deleteAndTransfer(char_pp_t arr, char_pp_t arr_){
@@ -648,7 +669,7 @@ ulong_t uString::rfind_(const uString &str){
     return -1;
 }
 
-bool uString::convertNumToStr(char *buffer, const int sizeBuffer, const char *par, const void *number){
+bool uString::convertNumToStr(char_p_t buffer, const int sizeBuffer, c_char_p_t par, const void *number){
     if (compareSymbols(par, getStrLen(par), "%d", getStrLen("%d"))){
         return snprintf(buffer, sizeBuffer, par, (*(int*)number));
     }
