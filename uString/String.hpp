@@ -7,9 +7,10 @@
 #ifndef String_hpp
 #define String_hpp
 
-#ifdef __APPLE__
+#if defined(__APPLE__) || defined(_WIN32)
 #include <ostream>
-#include <unistd.h>
+#include <string>
+#include <ostream>
 
 #elif defined(ARDUINO)
 #include <Arduino.h>
@@ -18,12 +19,12 @@
 #endif
 
 #define STR_CAPACITY 35
-#define VERSION_STRING "0.1.0"
+#define VERSION_STRING "0.1.1"
 #define STR_NULL "\0"
 #define one 1
 #define null 0
 
-#ifdef __APPLE__
+#if defined(__APPLE__) || defined(_WIN32)
 using ulong_t    = unsigned long;
 using c_ulong_t  = const unsigned long;
 #define ULONG_T_MAX ULONG_MAX
@@ -39,6 +40,7 @@ using c_char_p_t = const char*;
 using char_p_t   = char*;
 using char_pp_t  = char**;
 using c_char_t   = const char;
+using c_char_i_t = const char[];
 
 class uString{
     ulong_t u_capacity;
@@ -57,7 +59,7 @@ public:
 
     c_char_p_t c_str() const;
     uString s_str() const;
-#ifdef __APPLE__
+#if defined(__APPLE__) || defined(_WIN32)
     std::string std_str() const;
 #endif
 
@@ -80,6 +82,7 @@ public:
     
     void set(const uString&);
     void append(const uString&);
+    void append(c_char_i_t);
     void append(c_char_t);
     void append(const ulong_t, const uString&);
     void append(const ulong_t, c_char_t);
@@ -88,6 +91,7 @@ public:
     
     void insert(const uString&);
     void insert(c_ulong_t, const uString&);
+    void insert(c_ulong_t, c_char_i_t);
     
     void revert();
     void ascii(c_char_t);
@@ -120,8 +124,10 @@ public:
     
     operator c_char_p_t();
     uString &operator= (const uString&);
+    uString &operator= (c_char_i_t);
     uString &operator= (c_char_t);
     uString &operator+= (const uString&);
+    uString &operator+= (c_char_i_t);
     uString &operator+= (c_char_t);
     uString operator+ (c_char_t);
     
@@ -130,10 +136,14 @@ public:
     const bool operator!= (const uString&) const;
     char &operator[] (c_ulong_t) const;
     
-#ifdef __APPLE__
+#if defined(__APPLE__) || defined(_WIN32)
     friend std::ostream &operator<< (std::ostream&, const uString&);
 #endif
     friend uString operator+ (const uString&, const uString&);
+    friend uString operator+ ( uString&, c_char_i_t);
+    
+    friend uString operator+ (c_char_i_t, uString&);
+    
     
 private:
     void init();
@@ -155,7 +165,7 @@ private:
     void deleteAndTransfer(char_pp_t, char_pp_t);
     ulong_t find_(const uString&); // робимо пошук рядка з нульового символу
     ulong_t rfind_(const uString&); // робимо пошук рядка з останнього символу
-    bool convertNumToStr(char*, const int, const char*, const void*); // конвертуємо числа в рядок
+    bool convertNumToStr(char_p_t, const int, c_char_p_t, const void*); // конвертуємо числа в рядок
     void replace_(c_ulong_t, c_ulong_t, c_char_p_t, c_ulong_t);
 };
 
