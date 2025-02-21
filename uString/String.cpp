@@ -46,9 +46,7 @@ void uString::copyStrToArr(c_char_p_t str, char_p_t arr, c_ulong_t size){
         return;
     }
     else{
-        for (ulong_t i = 0; i < size; i++){
-            arr[i] = str[i];
-        }
+        std::memcpy(arr, str, size);
     }
 }
 
@@ -68,10 +66,7 @@ void uString::copyStrToArrIndex(ulong_t index, c_char_p_t str, char_p_t arr, ulo
     if (!(str && arr && size)){
         return;
     }
-    
-    for (ulong_t i = index; i < size; i++){
-        arr[i] = str[i - index];
-    }
+    std::memcpy(arr + index, str, size - index);
 }
 
 void uString::copyStrIndexToArrIndex(ulong_t index, c_char_p_t str, char_p_t arr, c_ulong_t arr_index, c_ulong_t size){
@@ -82,6 +77,11 @@ void uString::copyStrIndexToArrIndex(ulong_t index, c_char_p_t str, char_p_t arr
     for (ulong_t i = index; i < size; i++){
         arr[i] = str[(i - index) + arr_index];
     }
+}
+
+void uString::copyStrIndexToArrIndexV2(char_p_t arr_, char_p_t str, c_ulong_t index, c_ulong_t len, c_ulong_t size){
+    c_ulong_t s = ((this->u_size >= index) ? ((this->u_size - index) > len) ? len : this->u_size - index : 0);
+    std::memcpy(arr_ + (index + size), this->arr + (index + s), this->u_size - (index + s));
 }
 
 void uString::copyStrToArrIterator(iterator begin, iterator end, char_p_t arr, c_ulong_t pos){
@@ -96,9 +96,7 @@ void uString::copyStrToArrIterator(iterator begin, iterator end, char_p_t arr, c
 }
 
 void uString::toClear(ulong_t beg, ulong_t range){
-    for (ulong_t i = beg; i < range; i++){
-        this->arr[i] = '\0';
-    }
+    std::memset(this->arr, '\0', this->u_size);
 }
 
 ulong_t uString::sumANCI(c_char_p_t arr_, ulong_t size_) const{
@@ -130,7 +128,7 @@ void uString::addStrToArrExp(c_char_p_t str, ulong_t size, const short cout) noe
         char_p_t arr_ = createNewArr(this->u_capacity +1);
 
         copyStrToArr(this->arr, arr_, this->u_size +1);
-        copyStrToArrIndex(this->u_size, str, arr_, (this->u_size + size) +cout);
+        copyStrToArrIndex(this->u_size, str, arr_, this->u_size + size);
         
         this->u_size = this->u_size + size;
         
@@ -140,7 +138,7 @@ void uString::addStrToArrExp(c_char_p_t str, ulong_t size, const short cout) noe
         deleteAndTransfer(&this->arr, &arr_);
     }
     else if (this->u_capacity >= (this->u_size + size)){
-        copyStrToArrIndex(this->u_size, str, this->arr, (this->u_size + size) +cout);
+        copyStrToArrIndex(this->u_size, str, this->arr, this->u_size + size);
         this->u_size = this->u_size + size;
         
         if (cout == 0)
@@ -702,15 +700,16 @@ bool uString::convertNumToStr(char_p_t buffer, const int sizeBuffer, c_char_p_t 
 }
 
 void uString::replace_(c_ulong_t index, c_ulong_t len, c_char_p_t str, c_ulong_t size){
-    if (this->arr && this->u_size && index < this->u_size && index != ULONG_T_MAX){
-        if ((index + size) > this->u_size)
-            resizeCapacity(index + size);
+    if (this->arr && this->u_size && index <= this->u_size && index != ULONG_T_MAX){
+        resizeCapacity(this->u_size + size);
         
         char_p_t arr_ = createNewArr(this->u_capacity +1);
         copyStrToArr(this->arr, arr_, index);
         copyStrToArrIndex(index, str, arr_, index + size);
-        copyStrIndexToArrIndex(index + size, this->arr, arr_, index + len, 
-                               (index + size) + (((this->u_size - index) >= len) ? (this->u_size - index) - len : 0) +1);
+        copyStrIndexToArrIndexV2(arr_, this->arr, index, len, size);
+        
+//       copyStrIndexToArrIndex(index + size, this->arr, arr_, index + len,
+//                               (index + size) + (((this->u_size - index) >= len) ? (this->u_size - index) - len : 0) +1);
         
         this->u_size = (this->u_size - ((this->u_size <= len) ? this->u_size : len)) + size;
         deleteAndTransfer(&this->arr, &arr_);
