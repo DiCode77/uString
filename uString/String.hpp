@@ -155,6 +155,7 @@ private:
     void copyRevertStrToArr(c_char_p_t, char_p_t, c_ulong_t); // переставляємо символи зворотньо, працює тільки з ASCII.
     void copyStrToArrIndex(ulong_t, c_char_p_t, char_p_t, c_ulong_t); // копіюємо рядок із заданими координатами першого масиву
     void copyStrIndexToArrIndex(ulong_t, c_char_p_t, char_p_t, c_ulong_t, c_ulong_t); // копіюємо рядок із заданими координатами першого масиву та другого
+    void copyStrIndexToArrIndexV2(char_p_t, char_p_t, c_ulong_t, c_ulong_t, c_ulong_t); // теж саме що і copyStrIndexToArrIndex але швидше
     void copyStrToArrIterator(iterator, iterator, char_p_t, c_ulong_t pos = 0);
     void toClear(ulong_t, ulong_t); // очищає масив
     ulong_t sumANCI(c_char_p_t, ulong_t) const; // рахує суму всіх символів
