@@ -11,6 +11,8 @@
 #include <ostream>
 #include <string>
 #include <ostream>
+#include <span>
+#include <vector>
 
 #elif defined(ARDUINO)
 #include <Arduino.h>
@@ -19,7 +21,7 @@
 #endif
 
 #define STR_CAPACITY 35
-#define VERSION_STRING "0.1.1"
+#define VERSION_STRING "0.1.2"
 #define STR_NULL "\0"
 #define one 1
 #define null 0
@@ -111,6 +113,8 @@ public:
     void trim();
     void trimIs(char_p_t, int);
     
+    void toParseSentence(std::vector<uString>&, std::span<char>);
+    
     void replace(c_ulong_t, c_ulong_t, uString);
     ulong_t find(const uString&);
     ulong_t rfind(const uString&);
@@ -168,6 +172,7 @@ private:
     ulong_t rfind_(const uString&); // робимо пошук рядка з останнього символу
     bool convertNumToStr(char_p_t, const int, c_char_p_t, const void*); // конвертуємо числа в рядок
     void replace_(c_ulong_t, c_ulong_t, c_char_p_t, c_ulong_t);
+    inline bool checkTheSymbol(std::span<char>, char);
 };
 
 #endif /* String_hpp */

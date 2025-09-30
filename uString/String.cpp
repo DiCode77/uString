@@ -502,6 +502,28 @@ void uString::trimIs(char_p_t arr, int size){
     }
 }
 
+void uString::toParseSentence(std::vector<uString> &data, std::span<char> spn){
+    if (this->arr && this->u_size > 0){
+        bool lock = true;
+
+        for (ulong_t i = 0, Iv = 0; i < this->u_size; i++){
+            bool check_world_st = checkTheSymbol(spn, this->arr[i]);
+            if (check_world_st){
+                lock = true;
+                continue;
+            }
+            else{
+                if (lock){
+                    data.resize(data.size() +1);
+                    lock = false;
+                    Iv++;
+                }
+            }
+            data[Iv -1] += this->arr[i];
+        }
+    }
+}
+
 void uString::replace(c_ulong_t index, c_ulong_t len, uString str){
     replace_(index, len, str.arr, str.u_size);
 }
@@ -714,4 +736,13 @@ void uString::replace_(c_ulong_t index, c_ulong_t len, c_char_p_t str, c_ulong_t
         this->u_size = (this->u_size - ((this->u_size <= len) ? this->u_size : len)) + size;
         deleteAndTransfer(&this->arr, &arr_);
     }
+}
+
+inline bool uString::checkTheSymbol(std::span<char> spn, char sl){
+    for (ulong_t i = 0; i < spn.size(); i++){
+        if (spn[i] == sl){
+            return true;
+        }
+    }
+    return false;
 }
