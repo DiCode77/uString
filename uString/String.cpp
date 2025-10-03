@@ -502,28 +502,6 @@ void uString::trimIs(char_p_t arr, int size){
     }
 }
 
-void uString::toParseSentence(std::vector<uString> &data, std::span<char> spn){
-    if (this->arr && this->u_size > 0){
-        bool lock = true;
-
-        for (ulong_t i = 0, Iv = 0; i < this->u_size; i++){
-            bool check_world_st = checkTheSymbol(spn, this->arr[i]);
-            if (check_world_st){
-                lock = true;
-                continue;
-            }
-            else{
-                if (lock){
-                    data.resize(data.size() +1);
-                    lock = false;
-                    Iv++;
-                }
-            }
-            data[Iv -1] += this->arr[i];
-        }
-    }
-}
-
 void uString::replace(c_ulong_t index, c_ulong_t len, uString str){
     replace_(index, len, str.arr, str.u_size);
 }
@@ -745,4 +723,46 @@ inline bool uString::checkTheSymbol(std::span<char> spn, char sl){
         }
     }
     return false;
+}
+
+void uString::_toParseSentence(void *var, const char *type, std::span<char> spn, const int min_size_word){
+    if (this->arr && this->u_size > 0){
+        std::variant<std::vector<uString>*, std::deque<uString>*> v_a;
+        
+        if (!std::strcmp(typeid(std::vector<uString>*).name(), type)){
+            v_a = &(*static_cast<std::vector<uString>*>(var));
+        }
+        else if (!std::strcmp(typeid(std::deque<uString>*).name(), type)){
+            v_a = &(*static_cast<std::deque<uString>*>(var));
+        }
+        else{
+            return;
+        }
+        
+        std::visit([&](auto &&data){
+            bool lock = true;
+
+            for (ulong_t i = 0, Iv = 0; i < this->u_size; i++){
+                bool check_world_st = checkTheSymbol(spn, this->arr[i]);
+                if (check_world_st){
+                    if (!(*data).empty()){
+                        if ((*data)[Iv -1].size() < min_size_word){
+                            (*data).erase((*data).begin() +(Iv -1));
+                            Iv--;
+                        }
+                    }
+                    lock = true;
+                    continue;
+                }
+                else{
+                    if (lock){
+                        (*data).resize((*data).size() +1);
+                        lock = false;
+                        Iv++;
+                    }
+                }
+                (*data)[Iv -1] += this->arr[i];
+            }
+        }, v_a);
+    }
 }

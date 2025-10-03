@@ -13,6 +13,8 @@
 #include <ostream>
 #include <span>
 #include <vector>
+#include <deque>
+#include <variant>
 
 #elif defined(ARDUINO)
 #include <Arduino.h>
@@ -113,7 +115,10 @@ public:
     void trim();
     void trimIs(char_p_t, int);
     
-    void toParseSentence(std::vector<uString>&, std::span<char>);
+//    1) The first argument is the container in which the words will be stored.
+//    2) The second argument is an array of exceptions.
+//    3) We pass the minimum word size.
+    template <typename Te> void toParseSentence(Te *te, std::span<char> spn, const int min_size_word = 1){ _toParseSentence(te, typeid(te).name(), spn, min_size_word); }
     
     void replace(c_ulong_t, c_ulong_t, uString);
     ulong_t find(const uString&);
@@ -173,6 +178,7 @@ private:
     bool convertNumToStr(char_p_t, const int, c_char_p_t, const void*); // конвертуємо числа в рядок
     void replace_(c_ulong_t, c_ulong_t, c_char_p_t, c_ulong_t);
     inline bool checkTheSymbol(std::span<char>, char);
+    void _toParseSentence(void *var, const char *type, std::span<char>, const int);
 };
 
 #endif /* String_hpp */
