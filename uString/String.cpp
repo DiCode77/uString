@@ -619,6 +619,17 @@ uString operator+ (c_char_i_t str, uString &in){
     return in;
 }
 
+bool operator< (const uString &in1, const uString &in2) {
+    c_ulong_t min_size_str = ((in1.size() < in2.size()) ? in1.size() : in2.size());
+    
+    for (ulong_t i = 0; i < min_size_str; i++){
+        if (in1.arr[i] != in2.arr[i]){
+            return false;
+        }
+    }
+    return true;
+}
+
 void uString::deleteAndTransfer(char_pp_t arr, char_pp_t arr_){
     if (arr_){
         delete [] *arr;

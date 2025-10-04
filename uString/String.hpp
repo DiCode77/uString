@@ -153,6 +153,7 @@ public:
     
     friend uString operator+ (c_char_i_t, uString&);
     
+    friend bool operator< (const uString&, const uString&);
     
 private:
     void init();
