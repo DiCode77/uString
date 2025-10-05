@@ -624,10 +624,10 @@ bool operator< (const uString &in1, const uString &in2) {
     
     for (ulong_t i = 0; i < min_size_str; i++){
         if (in1.arr[i] != in2.arr[i]){
-            return false;
+            return in1.arr[i] < in2.arr[i];
         }
     }
-    return true;
+    return in1.size() < in2.size();
 }
 
 void uString::deleteAndTransfer(char_pp_t arr, char_pp_t arr_){
@@ -746,6 +746,13 @@ void uString::_toParseSentence(void *var, const char *type, std::span<char> spn,
         else if (!std::strcmp(typeid(std::deque<uString>*).name(), type)){
             v_a = &(*static_cast<std::deque<uString>*>(var));
         }
+        else if (!std::strcmp(typeid(std::map<uString, int>*).name(), type)){
+            std::variant<std::map<uString, int>*> v_ma;
+            v_ma = &(*static_cast<std::map<uString, int>*>(var));
+            auto data = std::get<0>(v_ma);
+            _parseSentenceForMap(data, spn, min_size_word);
+            return;
+        }
         else{
             return;
         }
@@ -777,3 +784,39 @@ void uString::_toParseSentence(void *var, const char *type, std::span<char> spn,
         }, v_a);
     }
 }
+
+void uString::_parseSentenceForMap(std::map<uString, int> *data, std::span<char> spn, const int min_size_word){
+    uString buffer;
+    
+    auto func = [&data, &buffer, min_size_word](){
+        if (buffer.size() < min_size_word){
+            buffer.clear();
+        }
+        else{
+            if (!(*data).count(buffer)){
+                (*data)[buffer] = 1;
+                buffer.clear();
+            }
+            else{
+                (*data)[buffer]++;
+                buffer.clear();
+            }
+        }
+    };
+    
+    for (ulong_t i = 0; i < this->u_size; i++){
+        bool check_world_st = checkTheSymbol(spn, this->arr[i]);
+        if (check_world_st){
+            if (!buffer.isEmpty()){
+                continue;
+            }
+            func();
+            continue;
+        }
+        buffer += this->arr[i];
+    }
+    if (buffer.isEmpty()){
+        func();
+    }
+}
+

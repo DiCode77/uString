@@ -15,6 +15,7 @@
 #include <vector>
 #include <deque>
 #include <variant>
+#include <map>
 
 #elif defined(ARDUINO)
 #include <Arduino.h>
@@ -179,9 +180,8 @@ private:
     bool convertNumToStr(char_p_t, const int, c_char_p_t, const void*); // конвертуємо числа в рядок
     void replace_(c_ulong_t, c_ulong_t, c_char_p_t, c_ulong_t);
     inline bool checkTheSymbol(std::span<char>, char);
-    void _toParseSentence(void *var, const char *type, std::span<char>, const int);
+    void _toParseSentence(void*, const char*, std::span<char>, const int);
+    void _parseSentenceForMap(std::map<uString, int>*, std::span<char>, const int);
 };
 
 #endif /* String_hpp */
-
-
