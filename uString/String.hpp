@@ -119,8 +119,9 @@ public:
 //    1) The first argument is the container in which the words will be stored.
 //    2) The second argument is an array of exceptions.
 //    3) We pass the minimum word size.
+#if defined(__APPLE__) || defined(_WIN32)
     template <typename Te> void toParseSentence(Te *te, std::span<char> spn, const int min_size_word = 1){ _toParseSentence(te, typeid(te).name(), spn, min_size_word); }
-    
+#endif
     void replace(c_ulong_t, c_ulong_t, uString);
     ulong_t find(const uString&);
     ulong_t rfind(const uString&);
@@ -179,9 +180,11 @@ private:
     ulong_t rfind_(const uString&); // робимо пошук рядка з останнього символу
     bool convertNumToStr(char_p_t, const int, c_char_p_t, const void*); // конвертуємо числа в рядок
     void replace_(c_ulong_t, c_ulong_t, c_char_p_t, c_ulong_t);
+#if defined(__APPLE__) || defined(_WIN32)
     inline bool checkTheSymbol(std::span<char>, char);
     void _toParseSentence(void*, const char*, std::span<char>, const int);
     void _parseSentenceForMap(std::map<uString, int>*, std::span<char>, const int);
+#endif
 };
 
 #endif /* String_hpp */

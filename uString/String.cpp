@@ -15,7 +15,7 @@ void uString::init(){
 }
 
 ulong_t uString::getStrLen(c_char_p_t str) const{
-    return (char_p_t)std::memchr(str, '\0', ULONG_T_MAX) - str;
+    return (char_p_t)memchr(str, '\0', ULONG_T_MAX) - str;
 }
 
 void uString::resizeCapacity(ulong_t size){
@@ -46,7 +46,7 @@ void uString::copyStrToArr(c_char_p_t str, char_p_t arr, c_ulong_t size){
         return;
     }
     else{
-        std::memcpy(arr, str, size);
+        memcpy(arr, str, size);
     }
 }
 
@@ -66,7 +66,7 @@ void uString::copyStrToArrIndex(ulong_t index, c_char_p_t str, char_p_t arr, ulo
     if (!(str && arr && size)){
         return;
     }
-    std::memcpy(arr + index, str, size - index);
+    memcpy(arr + index, str, size - index);
 }
 
 void uString::copyStrIndexToArrIndex(ulong_t index, c_char_p_t str, char_p_t arr, c_ulong_t arr_index, c_ulong_t size){
@@ -81,7 +81,7 @@ void uString::copyStrIndexToArrIndex(ulong_t index, c_char_p_t str, char_p_t arr
 
 void uString::copyStrIndexToArrIndexV2(char_p_t arr_, char_p_t str, c_ulong_t index, c_ulong_t len, c_ulong_t size){
     c_ulong_t s = ((this->u_size >= index) ? ((this->u_size - index) > len) ? len : this->u_size - index : 0);
-    std::memcpy(arr_ + (index + size), this->arr + (index + s), this->u_size - (index + s));
+    memcpy(arr_ + (index + size), this->arr + (index + s), this->u_size - (index + s));
 }
 
 void uString::copyStrToArrIterator(iterator begin, iterator end, char_p_t arr, c_ulong_t pos){
@@ -96,7 +96,7 @@ void uString::copyStrToArrIterator(iterator begin, iterator end, char_p_t arr, c
 }
 
 void uString::toClear(ulong_t beg, ulong_t range){
-    std::memset(this->arr, '\0', this->u_size);
+    memset(this->arr, '\0', this->u_size);
 }
 
 ulong_t uString::sumANCI(c_char_p_t arr_, ulong_t size_) const{
@@ -154,9 +154,9 @@ void uString::addStrToArrInsert(c_char_p_t str, ulong_t pos){
         char_p_t arr_ = createNewArr(this->u_capacity +1);
         ((pos > this->u_size) ? (pos = str_len) : 0);
         
-        std::memcpy(arr_, this->arr, pos);
-        std::memcpy(arr_ + pos, str, str_len);
-        std::memcpy(arr_ + pos + str_len, this->arr + pos, this->u_size - pos);
+        memcpy(arr_, this->arr, pos);
+        memcpy(arr_ + pos, str, str_len);
+        memcpy(arr_ + pos + str_len, this->arr + pos, this->u_size - pos);
         
         this->u_size += str_len;
         
@@ -727,6 +727,7 @@ void uString::replace_(c_ulong_t index, c_ulong_t len, c_char_p_t str, c_ulong_t
     }
 }
 
+#if defined(__APPLE__) || defined(_WIN32)
 inline bool uString::checkTheSymbol(std::span<char> spn, char sl){
     for (ulong_t i = 0; i < spn.size(); i++){
         if (spn[i] == sl){
@@ -819,4 +820,4 @@ void uString::_parseSentenceForMap(std::map<uString, int> *data, std::span<char>
         func();
     }
 }
-
+#endif
