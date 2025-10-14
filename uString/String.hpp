@@ -115,12 +115,15 @@ public:
     char at(ulong_t at);
     void trim();
     void trimIs(char_p_t, int);
+    const bool contains(const uString&);
     
 //    1) The first argument is the container in which the words will be stored.
 //    2) The second argument is an array of exceptions.
 //    3) We pass the minimum word size.
 #if defined(__APPLE__) || defined(_WIN32)
-    template <typename Te> void toParseSentence(Te *te, std::span<char> spn, const int min_size_word = 1){ _toParseSentence(te, typeid(te).name(), spn, min_size_word); }
+    template <typename Te>
+    void toParseSentence(Te *te, std::span<char> spn, const int min_size_word = 1){ _toParseSentence(te, typeid(te).name(), spn, min_size_word); }
+    void split(std::vector<uString>*, const char);
 #endif
     void replace(c_ulong_t, c_ulong_t, uString);
     ulong_t find(const uString&);

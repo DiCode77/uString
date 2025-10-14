@@ -502,6 +502,10 @@ void uString::trimIs(char_p_t arr, int size){
     }
 }
 
+const bool uString::contains(const uString &str){
+    return find_(str) != -1;
+}
+
 void uString::replace(c_ulong_t index, c_ulong_t len, uString str){
     replace_(index, len, str.arr, str.u_size);
 }
@@ -516,6 +520,13 @@ ulong_t uString::rfind(const uString &other){
 
 uString uString::concatenate(const uString &in1, const uString &in2){
     return (in1 + in2);
+}
+
+void uString::split(std::vector<uString> *vec, const char find){
+    if (this->u_size > 0){
+        char arr[1] = { find };
+        _toParseSentence(vec, typeid(vec).name(), std::span<char>(arr), 1);
+    }
 }
 
 uString::iterator uString::begin(){
